@@ -78,7 +78,7 @@ func DefaultTUNOptions() TUNOptions {
 		IPAddress:      "198.18.0.1",
 		PrefixLength:   15,
 		MTU:            1500,
-		DNSServers:     []string{"1.1.1.1", "8.8.8.8"},
+		DNSServers:     []string{"188.137.180.163", "9.9.9.10"},
 		ManageRoutes:   false,
 	}
 }
@@ -268,7 +268,7 @@ func ApplySystemProxy(address string) (*ProxySettings, error) {
 	if err := key.SetStringValue("ProxyOverride", "<local>"); err != nil {
 		return nil, err
 	}
-
+	
 	refreshInternetSettings()
 	return previous, nil
 }
@@ -636,8 +636,8 @@ func PrepareTUN(opts TUNOptions, diag *TUNPrepareDiagnostics) (*TUNState, error)
 		}
 	}()
 
-	usePS := os.Getenv("TROODI_TUN_USE_PS") == "1"
-	timingSplit := os.Getenv("TROODI_TUN_TIMING") == "1"
+	usePS := os.Getenv("FIREPROXY_TUN_USE_PS") == "1"
+	timingSplit := os.Getenv("FIREPROXY_TUN_TIMING") == "1"
 
 	if usePS {
 		// Legacy PowerShell path (slower, use for debugging or if native fails)
@@ -689,7 +689,7 @@ func PrepareTUN(opts TUNOptions, diag *TUNPrepareDiagnostics) (*TUNState, error)
 	tw := time.Now()
 	var idx int
 	var err error
-	if os.Getenv("TROODI_TUN_WAIT_PS") == "1" {
+	if os.Getenv("FIREPROXY_TUN_WAIT_PS") == "1" {
 		if diag != nil {
 			diag.Mode = "native_wait_ps"
 		}

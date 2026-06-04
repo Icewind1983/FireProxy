@@ -44,8 +44,8 @@ const (
 // - system proxy address,
 // - backend's cleanup/port probing logic.
 const (
-	DefaultMixedInboundPort = 10809
-	DefaultMixedInboundAddr = "127.0.0.1:10809"
+	DefaultMixedInboundPort = 10808
+	DefaultMixedInboundAddr = "127.0.0.1:10808"
 )
 
 type ProfileHealth string
@@ -59,7 +59,6 @@ const (
 type ServerProfile struct {
 	ID               string        `json:"id"`
 	Name             string        `json:"name"`
-	LatencyMS        int           `json:"latencyMs"`
 	Health           ProfileHealth `json:"health"`
 	Protocol         string        `json:"protocol"`
 	Address          string        `json:"address"`
@@ -103,11 +102,11 @@ func DefaultAppConfig() AppConfig {
 		ActiveProfileID:        "",
 		ConnectionState:        ConnectionDisconnected,
 		RoutingMode:            RoutingGlobal,
-		RulesProfile:           RulesProfileGlobal,
+		RulesProfile:           RulesProfileRussia,
 		DNSMode:                DNSAuto,
-		SystemProxyEnabled:     false,
-		TUNEnabled:             true,
-		LaunchAtStartup:        false,
+		SystemProxyEnabled:     true,
+		TUNEnabled:             false,
+		LaunchAtStartup:        true,
 		ProxyDomains:           []string{},
 		DirectDomains:          []string{},
 		BlockedDomains:         []string{},
@@ -160,7 +159,7 @@ func DefaultConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "troodi-vpn", "config.json"), nil
+	return filepath.Join(dir, "FireProxy", "config.json"), nil
 }
 
 func (s *Store) Get() AppConfig {

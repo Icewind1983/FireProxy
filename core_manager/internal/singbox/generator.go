@@ -62,13 +62,13 @@ func buildDNS(cfg config.AppConfig) map[string]any {
 		{
 			"type":   "tcp",
 			"tag":    "remote",
-			"server": "1.1.1.1",
+			"server": "188.137.180.163",
 			"detour": "proxy",
 		},
 		{
 			"type":   "tcp",
 			"tag":    "remote-fallback",
-			"server": "8.8.8.8",
+			"server": "188.137.180.163",
 			"detour": "proxy",
 		},
 		{
@@ -79,12 +79,12 @@ func buildDNS(cfg config.AppConfig) map[string]any {
 		{
 			"type":   "tcp",
 			"tag":    "local-ru",
-			"server": "77.88.8.8",
+			"server": "188.137.180.163",
 		},
 		{
 			"type":   "tcp",
 			"tag":    "local-ru-fallback",
-			"server": "77.88.8.1",
+			"server": "188.137.180.163",
 		},
 	}
 

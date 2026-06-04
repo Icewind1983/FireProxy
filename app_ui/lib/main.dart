@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+//import 'dart:core';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'lang/translations.dart';
+//import 'package:system_tray/system_tray.dart';
 
 part 'app_theme.dart';
 part 'app_localizations.dart';
@@ -25,7 +27,7 @@ Future<void> main() async {
   await _installFrontendCrashLogging();
   _appendFrontendHeartbeat('crash logging installed');
   runZonedGuarded(
-    () => runApp(const TroodiVpnApp()),
+    () => runApp(const FireProxyApp()),
     (error, stackTrace) {
       _appendFrontendCrashLog('ZONE', error, stackTrace);
     },
@@ -88,19 +90,19 @@ void _appendFrontendHeartbeat(String message) {
 List<String> _frontendLogPaths() {
   final home = Platform.environment['HOME'] ?? '';
   return <String>[
-    '/tmp/troodi-vpn-frontend-crash.log',
-    if (home.isNotEmpty) '$home/.cache/troodi-vpn/frontend-crash.log',
-    if (home.isNotEmpty) '$home/troodi-vpn-frontend-crash.log',
+    '/tmp/FireProxy-frontend-crash.log',
+    if (home.isNotEmpty) '$home/.cache/FireProxy/frontend-crash.log',
+    if (home.isNotEmpty) '$home/FireProxy-frontend-crash.log',
   ];
 }
 
-class TroodiVpnApp extends StatelessWidget {
-  const TroodiVpnApp({super.key});
+class FireProxyApp extends StatelessWidget {
+  const FireProxyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Troodi VPN',
+      title: 'FireProxy',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

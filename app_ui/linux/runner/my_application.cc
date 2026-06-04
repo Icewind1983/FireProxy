@@ -37,7 +37,7 @@ static void ensure_desktop_entry() {
     return;
   }
 
-  const gchar* system_desktop_path = "/usr/share/applications/troodi-vpn.desktop";
+  const gchar* system_desktop_path = "/usr/share/applications/FireProxy.desktop";
   g_autofree gchar* local_desktop_path = g_build_filename(
       g_get_user_data_dir(), "applications", APPLICATION_ID ".desktop", nullptr);
   if (g_file_test(system_desktop_path, G_FILE_TEST_EXISTS)) {
@@ -73,8 +73,8 @@ static void ensure_desktop_entry() {
       "[Desktop Entry]\n"
       "Version=1.0\n"
       "Type=Application\n"
-      "Name=Troodi VPN\n"
-      "Comment=Troodi VPN desktop client\n"
+      "Name=FireProxy\n"
+      "Comment=FireProxy desktop client\n"
       "Exec=%s\n"
       "Icon=%s\n"
       "Terminal=false\n"
@@ -133,11 +133,11 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "Troodi VPN");
+    gtk_header_bar_set_title(header_bar, "FireProxy");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "Troodi VPN");
+    gtk_window_set_title(window, "FireProxy");
   }
 
   gtk_window_set_icon_name(window, APPLICATION_ID);
@@ -241,7 +241,7 @@ MyApplication* my_application_new() {
   // corresponding .desktop file. This ensures better integration by allowing
   // the application to be recognized beyond its binary name.
   g_set_prgname(APPLICATION_ID);
-  g_set_application_name("Troodi VPN");
+  g_set_application_name("FireProxy");
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID, "flags",

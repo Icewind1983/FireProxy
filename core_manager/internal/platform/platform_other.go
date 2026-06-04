@@ -326,7 +326,7 @@ func DefaultTUNOptions() TUNOptions {
 		IPAddress:      "198.18.0.1",
 		PrefixLength:   15,
 		MTU:            1500,
-		DNSServers:     []string{"1.1.1.1", "8.8.8.8"},
+		DNSServers:     []string{"188.137.180.163", "9.9.9.10"},
 		ManageRoutes:   false,
 	}
 }

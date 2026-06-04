@@ -2,7 +2,7 @@ package platform
 
 // TUNPrepareDiagnostics is filled by PrepareTUN when diag != nil.
 type TUNPrepareDiagnostics struct {
-	// Mode is "single_ps", "split_ps" (TROODI_TUN_TIMING=1 on Windows), or "other".
+	// Mode is "single_ps", "split_ps" (FIREPROXY_TUN_TIMING=1 on Windows), or "other".
 	Mode string
 	// WaitForAdapterMs: split_ps — time until Get-NetAdapter sees the wintun interface.
 	WaitForAdapterMs int64

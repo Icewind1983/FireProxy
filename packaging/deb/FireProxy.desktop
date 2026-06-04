@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FireProxy
+Comment=FireProxy desktop client
+Exec=FireProxy
+Icon=troodi-vpn
+Terminal=false
+Categories=Network;
+StartupNotify=true
+StartupWMClass=com.troodi.vpn
+X-GNOME-WMClass=com.troodi.vpn
+Path=

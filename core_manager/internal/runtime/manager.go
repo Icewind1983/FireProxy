@@ -19,21 +19,21 @@ import (
 	"sync"
 	"time"
 
-	"github.com/miekg/dns"
 	"github.com/troodi/xray-desktop/core-manager/internal/config"
 	"github.com/troodi/xray-desktop/core-manager/internal/platform"
 	"github.com/troodi/xray-desktop/core-manager/internal/xray"
 	"golang.org/x/net/proxy"
 )
 
-const maxLogLines = 200
+const maxLogLines = 100
 
 const (
 	runetFreedomGeoSiteURL = "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geosite.dat"
 	runetFreedomGeoIPURL   = "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geoip.dat"
-	loyalSoldierGeoSiteURL = "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"
-	loyalSoldierGeoIPURL   = "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
-	routingAssetsTTL       = 6 * time.Hour
+//	loyalSoldierGeoSiteURL = "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"
+//	loyalSoldierGeoIPURL   = "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
+	dlcGeoSiteURL          = "https://github.com/Icewind1983/test/releases/download/latest/dlc.dat" 
+	routingAssetsTTL       = 24 * time.Hour
 
 	// Local mixed inbound; must match xray buildInbounds.
 	localMixedInboundAddr = config.DefaultMixedInboundAddr
@@ -47,7 +47,6 @@ type Status struct {
 	LastError                    string                     `json:"lastError,omitempty"`
 	LastExit                     string                     `json:"lastExit,omitempty"`
 	Mode                         string                     `json:"mode"`
-	LatencyMS                    int                        `json:"latencyMs"`
 	PublicIP                     string                     `json:"publicIp"`
 	DownloadBps                  uint64                     `json:"downloadBps"`
 	UploadBps                    uint64                     `json:"uploadBps"`
@@ -70,7 +69,6 @@ type Manager struct {
 	lastError      string
 	lastExit       string
 	mode           string
-	latencyMS      int
 	publicIP       string
 	downloadBps    uint64
 	uploadBps      uint64
@@ -230,7 +228,6 @@ func (m *Manager) Status() Status {
 		LastError:                    m.lastError,
 		LastExit:                     m.lastExit,
 		Mode:                         m.mode,
-		LatencyMS:                    m.latencyMS,
 		PublicIP:                     m.publicIP,
 		DownloadBps:                  m.downloadBps,
 		UploadBps:                    m.uploadBps,
@@ -397,7 +394,7 @@ func (m *Manager) startLocked(cfg config.AppConfig) error {
 			_ = m.stopLocked()
 			return err
 		}
-		m.appendLogLocked(fmt.Sprintf("[%s] [TUN timing] PrepareTUN: mode=%s total=%d ms wait_adapter=%d configure=%d single_script=%d (set TROODI_TUN_TIMING=1 to split wait vs configure)",
+		m.appendLogLocked(fmt.Sprintf("[%s] [TUN timing] PrepareTUN: mode=%s total=%d ms wait_adapter=%d configure=%d single_script=%d (set FIREPROXY_TUN_TIMING=1 to split wait vs configure)",
 			time.Now().Format(time.RFC3339), tunDiag.Mode, tunDiag.TotalMs, tunDiag.WaitForAdapterMs, tunDiag.ConfigureMs, tunDiag.SingleScriptMs))
 		m.tunState = tunState
 		if tunOptions.ManageRoutes {
@@ -477,7 +474,6 @@ func (m *Manager) stopLocked() error {
 		m.proxyState = nil
 	}
 	m.lastExit = "xray stopped"
-	m.latencyMS = 0
 	m.publicIP = ""
 	m.downloadBps = 0
 	m.uploadBps = 0
@@ -552,13 +548,13 @@ func (m *Manager) appendLog(line string) {
 }
 
 func defaultAssetDir() (string, error) {
-	if cacheDir, err := os.UserCacheDir(); err == nil && cacheDir != "" {
-		return filepath.Join(cacheDir, "troodi-vpn", "xray-assets"), nil
-	}
+	//if cacheDir, err := os.UserCacheDir(); err == nil && cacheDir != "" {
+	//	return filepath.Join(cacheDir, "FireProxy", "xray-assets"), nil
+	//}
 	if configDir, err := os.UserConfigDir(); err == nil && configDir != "" {
-		return filepath.Join(configDir, "troodi-vpn", "xray-assets"), nil
+		return filepath.Join(configDir, "FireProxy", "xray-assets"), nil
 	}
-	return filepath.Join(os.TempDir(), "troodi-vpn", "xray-assets"), nil
+	return filepath.Join(os.TempDir(), "FireProxy", "xray-assets"), nil
 }
 
 func isFreshFile(path string, ttl time.Duration) bool {
@@ -838,7 +834,6 @@ func (m *Manager) waitForExit(cmd *exec.Cmd) {
 	if restoreErr := platform.RestoreSystemProxy(m.proxyState); restoreErr == nil {
 		m.proxyState = nil
 	}
-	m.latencyMS = 0
 	m.publicIP = ""
 	m.downloadBps = 0
 	m.uploadBps = 0
@@ -858,7 +853,7 @@ func (m *Manager) appendLogLocked(line string) {
 }
 
 func writeRuntimeDiagnosticLine(line string) {
-	logDir := filepath.Join(os.TempDir(), "troodi-vpn")
+	logDir := filepath.Join(os.TempDir(), "FireProxy")
 	if err := os.MkdirAll(logDir, 0o755); err != nil {
 		return
 	}
@@ -1059,7 +1054,6 @@ func (m *Manager) refreshRuntimeMetrics(cfg config.AppConfig) {
 	currentIP := m.publicIP
 	m.mu.Unlock()
 
-	latency := measureLatency(cfg)
 	publicIP := currentIP
 
 	if shouldRefreshIP {
@@ -1119,14 +1113,13 @@ func (m *Manager) refreshRuntimeMetrics(cfg config.AppConfig) {
 		m.uploadBps = 0
 		return
 	}
-	m.latencyMS = latency
 	if publicIP != "" {
 		m.publicIP = publicIP
 		m.lastIPLookupAt = time.Now()
 	}
 	m.downloadBps = downloadBps
 	m.uploadBps = uploadBps
-	m.ready = m.running && (m.mode == "tun" || localInboundReady || m.latencyMS > 0 || m.publicIP != "")
+	m.ready = m.running && (m.mode == "tun" || localInboundReady || m.publicIP != "")
 }
 
 func mixedInboundListening() bool {
@@ -1136,32 +1129,6 @@ func mixedInboundListening() bool {
 	}
 	_ = conn.Close()
 	return true
-}
-
-func measureLatency(cfg config.AppConfig) int {
-	profile := activeProfile(cfg)
-	if profile.Address != "" && profile.Port > 0 {
-		address := net.JoinHostPort(profile.Address, strconv.Itoa(profile.Port))
-		startedAt := time.Now()
-		conn, err := net.DialTimeout("tcp", address, 600*time.Millisecond)
-		if err == nil {
-			_ = conn.Close()
-			return int(time.Since(startedAt).Milliseconds())
-		}
-	}
-
-	startedAt := time.Now()
-	conn, err := dialDiagnosticTarget(cfg, "8.8.8.8:53")
-	if err != nil {
-		return 0
-	}
-	defer conn.Close()
-
-	if err := queryGoogleDNS(conn); err != nil {
-		return 0
-	}
-
-	return int(time.Since(startedAt).Milliseconds())
 }
 
 func dialDiagnosticTarget(cfg config.AppConfig, address string) (net.Conn, error) {
@@ -1191,7 +1158,7 @@ func lookupExternalIP(cfg config.AppConfig) (string, error) {
 }
 
 func lookupExternalIPViaLocalMixedInbound() (string, error) {
-	request, err := http.NewRequest(http.MethodGet, "https://api4.ipify.org?format=json", nil)
+	request, err := http.NewRequest(http.MethodGet, "", nil)
 	if err != nil {
 		return "", err
 	}
@@ -1236,7 +1203,7 @@ func lookupExternalIPViaLocalMixedInbound() (string, error) {
 
 // lookupExternalIPDirect bypasses local mixed inbound (used when TUN is on or as fallback).
 func lookupExternalIPDirect() (string, error) {
-	request, err := http.NewRequest(http.MethodGet, "https://api4.ipify.org?format=json", nil)
+	request, err := http.NewRequest(http.MethodGet, "", nil)
 	if err != nil {
 		return "", err
 	}
@@ -1264,22 +1231,4 @@ func lookupExternalIPDirect() (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(payload.IP), nil
-}
-
-func queryGoogleDNS(conn net.Conn) error {
-	message := new(dns.Msg)
-	message.SetQuestion("google.com.", dns.TypeA)
-	message.RecursionDesired = true
-
-	if err := conn.SetDeadline(time.Now().Add(2 * time.Second)); err != nil {
-		return err
-	}
-
-	dnsConn := &dns.Conn{Conn: conn}
-	if err := dnsConn.WriteMsg(message); err != nil {
-		return err
-	}
-
-	_, err := dnsConn.ReadMsg()
-	return err
 }

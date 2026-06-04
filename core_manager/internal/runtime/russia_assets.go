@@ -36,8 +36,9 @@ func russiaRoutingAssetSpecs() []struct {
 	}{
 		{name: "geosite.dat", url: runetFreedomGeoSiteURL},
 		{name: "geoip.dat", url: runetFreedomGeoIPURL},
-		{name: "geosite-ls.dat", url: loyalSoldierGeoSiteURL},
-		{name: "geoip-ls.dat", url: loyalSoldierGeoIPURL},
+		//{name: "geosite-ls.dat", url: loyalSoldierGeoSiteURL},
+		//{name: "geoip-ls.dat", url: loyalSoldierGeoIPURL},
+		{name: "dlc.dat", url: dlcGeoSiteURL},
 	}
 }
 
@@ -50,7 +51,7 @@ func russiaRoutingAssetNames() []string {
 	return names
 }
 
-const russiaAssetMinBytes = 4096
+const russiaAssetMinBytes = 1024
 
 func isRussiaAssetFileValid(path string) bool {
 	info, err := os.Stat(path)
@@ -227,6 +228,9 @@ func (m *Manager) ensureRoutingAssetsInternal(enabled bool, force bool) (string,
 	if m.isTunRunning() {
 		undoBypass, _ = m.setupTunBypassForHosts(russiaRoutingAssetSpecs())
 	}
+	//if m.isProxyRunning() {
+	//	undoBypass, _ = m.setupTunBypassForHosts(russiaRoutingAssetSpecs())
+	//}
 	if undoBypass != nil {
 		defer undoBypass()
 	}
@@ -293,6 +297,12 @@ func (m *Manager) isTunRunning() bool {
 	defer m.mu.Unlock()
 	return m.running && m.mode == "tun"
 }
+
+//func (m *Manager) isProxyRunning() bool {
+//	m.mu.Lock()
+//	defer m.mu.Unlock()
+//	return m.running && m.mode == "proxy"
+//}
 
 func (m *Manager) setupTunBypassForHosts(specs []struct {
 	name string

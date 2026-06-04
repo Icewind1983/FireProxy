@@ -383,7 +383,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
             NavigationDestination(
               icon: const Icon(Icons.tune_outlined),
-              label: loc(appLanguage, 'Settings'),
+              label: loc(appLanguage, 'Logs'),
             ),
           ],
         ),
@@ -1017,7 +1017,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       case AppPage.profiles:
         return _buildProfilesView();
       case AppPage.settings:
-        return _buildSettingsView();
+        return _buildLogsView();
     }
   }
 
@@ -1090,7 +1090,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildRulesView() {
-    final testResult = _testRule(ruleTestController.text);
+    //final testResult = _testRule(ruleTestController.text);
     final vpnRules = _rulesForBucket(RuleBucket.vpn);
     final directRules = _rulesForBucket(RuleBucket.direct);
     final blockedRules = _rulesForBucket(RuleBucket.blocked);
@@ -1115,32 +1115,6 @@ class _DashboardScreenState extends State<DashboardScreen>
           ).animate().fadeIn(duration: 240.ms).slideY(
                 begin: 0.05,
                 end: 0,
-                duration: 280.ms,
-                curve: Curves.easeOutCubic,
-              ),
-          const SizedBox(height: 16),
-          _TrafficBehaviorCard(
-            routingMode: routingMode,
-            vpnCount: vpnRules.where((rule) => rule.enabled).length,
-            directCount: directRules.where((rule) => rule.enabled).length,
-            blockedCount: blockedRules.where((rule) => rule.enabled).length,
-            onViewDetails: _showRoutingDetailsDialog,
-          ).animate().fadeIn(delay: 80.ms, duration: 240.ms).slideY(
-                begin: 0.05,
-                end: 0,
-                delay: 80.ms,
-                duration: 280.ms,
-                curve: Curves.easeOutCubic,
-              ),
-          const SizedBox(height: 16),
-          _DomainTestCard(
-            controller: ruleTestController,
-            result: testResult,
-            onChanged: () => setState(() {}),
-          ).animate().fadeIn(delay: 140.ms, duration: 240.ms).slideY(
-                begin: 0.05,
-                end: 0,
-                delay: 140.ms,
                 duration: 280.ms,
                 curve: Curves.easeOutCubic,
               ),
@@ -1541,24 +1515,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
   }
 
-  Future<void> _showRoutingDetailsDialog() async {
-    await showDialog<void>(
-      context: context,
-      builder: (context) => _RoutingDetailsDialog(
-        routingMode: routingMode,
-        vpnRules: _rulesForBucket(RuleBucket.vpn)
-            .where((rule) => rule.enabled)
-            .toList(growable: false),
-        directRules: _rulesForBucket(RuleBucket.direct)
-            .where((rule) => rule.enabled)
-            .toList(growable: false),
-        blockedRules: _rulesForBucket(RuleBucket.blocked)
-            .where((rule) => rule.enabled)
-            .toList(growable: false),
-      ),
-    );
-  }
-
   String _bucketTitle(RuleBucket bucket) {
     switch (bucket) {
       case RuleBucket.vpn:
@@ -1846,16 +1802,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                   title: tr('Added profiles'),
                   trailing: SizedBox(
                     width: constraints.maxWidth > 920 ? 320 : double.infinity,
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: tr('Search profiles, SNI or address'),
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.06),
-                      ),
-                    ),
+                    //child: TextField(
+                    //  controller: searchController,
+                    //  onChanged: (_) => setState(() {}),
+                      //decoration: InputDecoration(
+                      //  hintText: tr('Search profiles, SNI or address'),
+                      //  prefixIcon: const Icon(Icons.search_rounded),
+                      //  filled: true,
+                      //  fillColor: Colors.white.withValues(alpha: 0.06),
+                      //),
+                    //),
                   ),
                 ).animate().fadeIn(delay: 190.ms, duration: 220.ms),
                 const SizedBox(height: 12),
@@ -1969,7 +1925,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildSettingsView() {
+  Widget _buildLogsView() {
     return LayoutBuilder(
       builder: (context, constraints) {
         final contentWidth = constraints.maxWidth >= 1180
@@ -1986,42 +1942,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                 children: [
                   _SettingsSectionCard(
                     icon: Icons.shield_outlined,
-                    title: loc(appLanguage, 'Connection'),
+                    title: loc(appLanguage, 'Logs application and Xray'),
                     children: [
-                      _SettingsToggleRow(
-                        icon: Icons.shield_outlined,
-                        title: loc(appLanguage, 'VPN (TUN) Mode'),
-                        subtitle: loc(
-                          appLanguage,
-                          'Protect all applications',
-                        ),
-                        value: tunEnabled,
-                        onChanged: (value) async {
-                          if (value) {
-                            await _switchTunnelMode(TunnelMode.vpn);
-                          } else {
-                            await _switchTunnelMode(TunnelMode.proxy);
-                          }
-                        },
-                      ),
-                      _SettingsDividerLine(),
-                      _SettingsToggleRow(
-                        icon: Icons.public_rounded,
-                        title: loc(appLanguage, 'Proxy'),
-                        subtitle: loc(
-                          appLanguage,
-                          'Proxy: for selected apps only.',
-                        ),
-                        value: systemProxyEnabled,
-                        onChanged: (value) async {
-                          if (value) {
-                            await _switchTunnelMode(TunnelMode.proxy);
-                          } else {
-                            await _switchTunnelMode(TunnelMode.vpn);
-                          }
-                        },
-                      ),
-                      _SettingsDividerLine(),
+                      //_SettingsDividerLine(),
                       _SettingsActionRow(
                         icon: Icons.article_outlined,
                         title: loc(appLanguage, 'Open Logs'),
@@ -2035,27 +1958,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ).animate().fadeIn(duration: 240.ms).slideY(
                         begin: 0.04,
                         end: 0,
-                        duration: 280.ms,
-                        curve: Curves.easeOutCubic,
-                      ),
-                  const SizedBox(height: 16),
-                  _SettingsSectionCard(
-                    icon: Icons.info_outline_rounded,
-                    title: loc(appLanguage, 'About Us'),
-                    children: [
-                      _SettingsActionRow(
-                        icon: Icons.info_outline_rounded,
-                        title: loc(appLanguage, 'About'),
-                        subtitle: 'Troodi VPN • Flutter + Go + Xray',
-                        onTap: () => _showMessage(
-                          'Troodi VPN • Flutter + Go + Xray',
-                        ),
-                      ),
-                    ],
-                  ).animate().fadeIn(delay: 90.ms, duration: 240.ms).slideY(
-                        begin: 0.04,
-                        end: 0,
-                        delay: 90.ms,
                         duration: 280.ms,
                         curve: Curves.easeOutCubic,
                       ),
@@ -2600,121 +2502,6 @@ class _DashboardScreenState extends State<DashboardScreen>
       return false;
     }
     return normalized.endsWith('.ru') || normalized.endsWith('.xn--p1ai');
-  }
-
-  _RuleTestResult _testRule(String raw) {
-    final value = _normalizeRuleValue(raw);
-    if (value.isEmpty) {
-      return const _RuleTestResult.empty();
-    }
-
-    final enabledBlocked = _enabledRules(blockedDomains, disabledBlockedRules);
-    final enabledVpn = _enabledRules(proxyDomains, disabledVpnRules);
-    final enabledDirect = _enabledRules(directDomains, disabledDirectRules);
-
-    for (final item in enabledBlocked) {
-      if (_ruleMatches(item, value)) {
-        return _RuleTestResult(
-          input: value,
-          destination: tr('Blocked'),
-          matchedRule: item,
-          accent: const Color(0xFFFF9E8B),
-          hasMatch: true,
-          typeLabel: _detectRuleType(item)?.name.toUpperCase() ?? 'DOMAIN',
-          defaultBehavior: '',
-        );
-      }
-    }
-
-    if (routingMode == RoutingMode.whitelist) {
-      for (final item in enabledVpn) {
-        if (_ruleMatches(item, value)) {
-          return _RuleTestResult(
-            input: value,
-            destination: tr('Via VPN'),
-            matchedRule: item,
-            accent: const Color(0xFF6BD7AE),
-            hasMatch: true,
-            typeLabel: _detectRuleType(item)?.name.toUpperCase() ?? 'DOMAIN',
-            defaultBehavior: '',
-          );
-        }
-      }
-      return _RuleTestResult(
-        input: value,
-        destination: tr('Open normally'),
-        matchedRule: '',
-        accent: const Color(0xFF8EA2FF),
-        hasMatch: false,
-        typeLabel: '',
-        defaultBehavior: tr('Open normally'),
-      );
-    }
-
-    for (final item in enabledDirect) {
-      if (_ruleMatches(item, value)) {
-        return _RuleTestResult(
-          input: value,
-          destination: tr('Open normally'),
-          matchedRule: item,
-          accent: const Color(0xFF8EA2FF),
-          hasMatch: true,
-          typeLabel: _detectRuleType(item)?.name.toUpperCase() ?? 'DOMAIN',
-          defaultBehavior: '',
-        );
-      }
-    }
-
-    if (rulesProfile == RulesProfile.russia) {
-      if (_isPrivateIpValue(value)) {
-        return _RuleTestResult(
-          input: value,
-          destination: tr('Open normally'),
-          matchedRule: 'geoip:private',
-          accent: const Color(0xFF8EA2FF),
-          hasMatch: true,
-          typeLabel: 'IP',
-          defaultBehavior: '',
-        );
-      }
-
-      if (_isLikelyRussianRoute(value)) {
-        return _RuleTestResult(
-          input: value,
-          destination: tr('Open normally'),
-          matchedRule: 'geosite:ru / geoip:ru',
-          accent: const Color(0xFF8EA2FF),
-          hasMatch: true,
-          typeLabel: _detectRuleType(value)?.name.toUpperCase() ?? 'DOMAIN',
-          defaultBehavior: '',
-        );
-      }
-
-      return _RuleTestResult(
-        input: value,
-        destination: tr('Via VPN'),
-        matchedRule: '',
-        accent: const Color(0xFF6BD7AE),
-        hasMatch: false,
-        typeLabel: '',
-        defaultBehavior: tr('Russia Smart default'),
-      );
-    }
-
-    if (routingMode == RoutingMode.blacklist ||
-        routingMode == RoutingMode.global) {
-      return _RuleTestResult(
-        input: value,
-        destination: tr('Via VPN'),
-        matchedRule: '',
-        accent: const Color(0xFF6BD7AE),
-        hasMatch: false,
-        typeLabel: '',
-        defaultBehavior: tr('Via VPN'),
-      );
-    }
-
-    return const _RuleTestResult.empty();
   }
 
   List<String> _enabledRules(List<String> rules, Set<String> disabledRules) {

@@ -4,19 +4,13 @@ import "github.com/troodi/xray-desktop/core-manager/internal/config"
 
 type Config map[string]any
 
-var forcedProxyCheckDomains = []string{
-	"full:api4.ipify.org",
-	"full:api.ipify.org",
-	"full:ifconfig.me",
-	"full:ipinfo.io",
-}
-
 type BuildOptions struct {
 	BindInterface string
 	BindAddress   string
 	TUNInterface  string
 	TUNAddress    string
 	TUNMTU        int
+	
 }
 
 func DefaultBuildOptions() BuildOptions {
@@ -85,7 +79,7 @@ func BuildWithOptions(cfg config.AppConfig, opts BuildOptions) Config {
 	}
 
 	return Config{
-		"log":      map[string]any{"loglevel": "warning"},
+		"log":      map[string]any{"loglevel": "error"},
 		"dns":      buildDNS(cfg),
 		"inbounds": buildInbounds(cfg, opts),
 		"outbounds": []map[string]any{
@@ -116,38 +110,53 @@ func BuildWithOptions(cfg config.AppConfig, opts BuildOptions) Config {
 }
 
 func buildDNS(cfg config.AppConfig) map[string]any {
-	if cfg.RulesProfile == config.RulesProfileRussia {
-		servers := make([]any, 0, 8)
+	//if cfg.RulesProfile == config.RulesProfileRussia {
+		//servers := make([]any, 0, 8)
+		
+		//if len(cfg.BlockedDomains) > 0 {
+		//	servers = append(servers, dnsServer("quic+local://searx.my.to:853", cfg.BlockedDomains, nil, true))
+		//}
 
-		if len(cfg.ProxyDomains) > 0 {
-			servers = append(servers, dnsServer("1.1.1.1", cfg.ProxyDomains, nil, true))
-		}
-		if len(cfg.DirectDomains) > 0 {
-			servers = append(servers, dnsServer("tcp+local://77.88.8.8", cfg.DirectDomains, []string{"geoip:private", "geoip:ru"}, true))
-		}
+		//if len(cfg.ProxyDomains) > 0 {
+		//	servers = append(servers, dnsServer("quic+local://searx.my.to:853", cfg.ProxyDomains, nil, true))
+		//}
+		//if len(cfg.DirectDomains) > 0 {
+		//	servers = append(servers, dnsServer("quic+local://searx.my.to:853", cfg.DirectDomains, []string{"geoip:private", "geoip:ru"}, true))
+		//}
 
-		servers = append(servers,
-			dnsServer("1.1.1.1", []string{"geosite:ru-blocked"}, nil, true),
-			dnsServer("localhost", []string{"geosite:private"}, []string{"geoip:private"}, true),
-			dnsServer("tcp+local://77.88.8.8", []string{"geosite:ru-available-only-inside"}, []string{"geoip:ru"}, true),
-			dnsServer("tcp+local://77.88.8.8", []string{"regexp:(^|\\.).*\\.ru$", "regexp:(^|\\.).*\\.xn--p1ai$"}, []string{"geoip:ru"}, true),
-			"localhost",
-			"1.1.1.1",
-			"8.8.8.8",
-		)
+		//servers = append(servers,
+		    //dnsServer("188.137.180.163", []string{"domain:searx.my.to"}, nil, true),
+			//dnsServer("quic+local://searx.my.to:853", nil, nil, true),
+		//	dnsServer("quic+local://searx.my.to:853", []string{"geosite:ru-blocked"}, nil, true),
+		//	dnsServer("188.137.180.163", []string{"full:https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geosite.dat", "full:https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geoip.dat", "full:https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat", "full:https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"}, nil, true),
+		//	dnsServer("localhost", []string{"geosite:private"}, []string{"geoip:private"}, true),
+		//	dnsServer("quic+local://searx.my.to:853", []string{"geosite:ru-available-only-inside"}, []string{"geoip:ru"}, true),
+		//	dnsServer("quic+local://searx.my.to:853", []string{"regexp:(^|\\.).*\\.ru$", "regexp:(^|\\.).*\\.xn--p1ai$"},  []string{"geoip:ru"}, true),
+		//)
 
-		return map[string]any{
-			"servers":       servers,
-			"queryStrategy": "UseIPv4",
-		}
-	}
+		//return map[string]any{
+		//	"servers":       servers,
+		//	"queryStrategy": "UseIPv4",
+		//	"finalQuery": true,
+		//}
+	//}
 
-	dnsServers := []string{"1.1.1.1", "8.8.8.8"}
-	if cfg.DNSMode == config.DNSDirect {
-		dnsServers = []string{"localhost"}
-	}
+	dnsServers := []string{"quic+local://searx.my.to:853"}
+	//if cfg.DNSMode == config.DNSDirect {
+	//	dnsServers = []string{"quic+local://searx.my.to:853"}
+	//}
+
+	//if cfg.DNSMode == config.DNSAuto {
+	//	dnsServers = []string{"quic+local://searx.my.to:853"}
+	//}
+
+	//if cfg.DNSMode == config.DNSProxy {
+	//	dnsServers = []string{"quic+local://searx.my.to:853"}
+	//}
 
 	dnsConfig := map[string]any{"servers": dnsServers}
+	dnsConfig["queryStrategy"] = "UseIPv4"
+	//dnsConfig["finalQuery"] = true
 	if cfg.TUNEnabled {
 		dnsConfig["queryStrategy"] = "UseIPv4"
 	}
@@ -175,9 +184,11 @@ func appendRussiaSmartRules(rules []map[string]any, cfg config.AppConfig) []map[
 	// Keep local/private destinations outside the tunnel even when TUN or
 	// system proxy is enabled, so LAN traffic does not loop through Xray.
 	rules = appendIPRule(rules, []string{"geoip:private"}, "direct")
+	rules = appendDomainRule(rules, []string{"domain:localhost"}, "direct")	
 
-	// Ensure runtime IP-check endpoints always go via proxy in Russia profile.
-	rules = appendDomainRule(rules, forcedProxyCheckDomains, "proxy")
+	if len(cfg.BlockedDomains) > 0 {
+		rules = appendDomainRule(rules, cfg.BlockedDomains, "block")
+	}
 
 	if len(cfg.ProxyDomains) > 0 {
 		rules = appendDomainRule(rules, cfg.ProxyDomains, "proxy")
@@ -188,16 +199,31 @@ func appendRussiaSmartRules(rules []map[string]any, cfg config.AppConfig) []map[
 	// 2. Resources available only from inside Russia -> direct
 	// 3. Other Russian traffic -> direct
 	// 4. Everything else -> proxy
-	rules = appendDomainRule(rules, []string{"geosite:ru-blocked"}, "proxy")
-	rules = appendIPRule(rules, []string{"geoip:ru-blocked"}, "proxy")
-
+	
 	if len(cfg.DirectDomains) > 0 {
 		rules = appendDomainRule(rules, cfg.DirectDomains, "direct")
 	}
+	
+	//rules = appendDomainRule(rules, []string{"full:https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geosite.dat", "full:https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geoip.dat", "full:https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat", "full:https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"}, "direct")
+	
+	//rules = appendDomainRule(rules, []string{"process:uTorrent.exe", "process:BitTorrent.exe", "process:qbittorrent.exe", "process:deluge.exe"}, "direct")
+	
+	rules = appendDomainRule(rules, []string{"geosite:category-ads", "geosite:kaspersky", "geosite:qihoo360", "geosite:win-spy"}, "block")
+	rules = appendDomainRule(rules, []string{"domain:browser.rpc.alice.yandex.ru", "domain:browser.yandex.ru", "domain:browser.yandex.net", "domain:common.dot.dns.yandex.net"}, "block")
+	rules = appendDomainRule(rules, []string{"ext:dlc.dat:ads"}, "block")
+	
+	rules = appendDomainRule(rules, []string{"ext:dlc.dat:direct-ru"}, "direct")
+	rules = appendDomainRule(rules, []string{"domain:hcaptcha.com", "domain:geetest.com"}, "direct")
+	
+	rules = appendDomainRule(rules, []string{"geosite:ru-blocked"}, "proxy")
+	rules = appendIPRule(rules, []string{"geoip:ru-blocked"}, "proxy")
+	rules = appendDomainRule(rules, []string{"domain:google.ru"}, "proxy")
 
-	rules = appendDomainRule(rules, []string{"geosite:ru-available-only-inside"}, "direct")
-	rules = appendDomainRule(rules, []string{"regexp:(^|\\.).*\\.ru$", "regexp:(^|\\.).*\\.xn--p1ai$"}, "direct")
-	rules = appendIPRule(rules, []string{"ext:geoip-ls.dat:ru"}, "direct")
+	rules = appendDomainRule(rules, []string{"geosite:ru-available-only-inside", "geosite:category-ip-geo-detect"}, "direct")
+	rules = appendDomainRule(rules, []string{"geosite:tld-ru", "geosite:category-ru", "geosite:category-gov-ru", "geosite:category-bank-ru", "geosite:category-travel-ru", "geosite:sber", "geosite:timeweb", "geosite:tilda", "geosite:vk", "geosite:mailru", "geosite:group-ib", "geosite:mailru-group", "geosite:rostelecom", "geosite:yandex", "geosite:habr", "geosite:wildberries", "geosite:x5", "geosite:ozon",  "geosite:mts-ru"}, "direct")
+	rules = appendDomainRule(rules, []string{"domain:whatismyip.io", "domain:nettools.club", "domain:changeip.com", "domain:opera.com", "domain:operacdn.com",}, "direct")
+	rules = appendDomainRule(rules, []string{"regexp:(^|\\.).*\\.ru$", "regexp:(^|\\.).*\\.xn--p1ai$", "regexp:(^|\\.).*\\.by$", "regexp:(^|\\.).*\\.cloud$", "regexp:(^|\\.).*\\.moscow$", "regexp:(^|\\.).*\\.xn--80adxhks$", "regexp:(^|\\.).*\\.su$", "regexp:(^|\\.).*\\.biz$", "regexp:(^|\\.).*\\.yandex$", "regexp:(^|\\.).*\\.media$", "regexp:burp$", "regexp:(^|\\.).*\\.press$", "regexp:(^|\\.).*\\.tatar$", "regexp:(^|\\.).*\\.fm$"}, "direct")
+	rules = appendIPRule(rules, []string{"ext:geoip.dat:ru"}, "direct")
 
 	return append(rules, map[string]any{
 		"type":        "field",
@@ -227,6 +253,14 @@ func appendIPRule(rules []map[string]any, ips []string, outboundTag string) []ma
 		"outboundTag": outboundTag,
 	})
 }
+
+//Стратегия разрешения доменных имен. Используются разные стратегии в зависимости от настройки.
+
+//    "AsIs": для выбора маршрута используются только доменные имена. Значение по умолчанию.
+//    "IPIfNonMatch": если доменное имя не соответствует ни одному правилу, доменное имя разрешается в IP-адрес (запись A или запись AAAA) для повторного сопоставления;
+//        Если у доменного имени несколько записей A, предпринимается попытка сопоставить все записи A, пока одна из них не будет соответствовать какому-либо правилу;
+//        Разрешенный IP-адрес используется только при выборе маршрута, в пересылаемых пакетах данных по-прежнему используется исходное доменное имя;
+//    "IPOnDemand": если при сопоставлении встречается любое правило на основе IP-адреса, доменное имя немедленно разрешается в IP-адрес для сопоставления;
 
 func domainStrategy(cfg config.AppConfig) string {
 	if cfg.RulesProfile == config.RulesProfileRussia {
@@ -442,7 +476,7 @@ func buildStreamSettings(profile config.ServerProfile, bindInterface string) map
 			realitySettings["spiderX"] = profile.SpiderX
 		}
 		if realitySettings["fingerprint"] == nil {
-			realitySettings["fingerprint"] = "chrome"
+			realitySettings["fingerprint"] = "firefox"
 		}
 		streamSettings["realitySettings"] = realitySettings
 	}

@@ -20,29 +20,23 @@ enum RuleBucket { vpn, direct, blocked }
 
 enum RulesProfile { global, russia }
 
-enum AppLanguage { en, ru, zh }
+enum AppLanguage { ru }
 
 AppLanguage _activeLanguage = AppLanguage.ru;
 
 extension AppLanguageX on AppLanguage {
   String get label => switch (this) {
-        AppLanguage.en => 'English',
         AppLanguage.ru => '\u0420\u0443\u0441\u0441\u043a\u0438\u0439',
-        AppLanguage.zh => '\u4e2d\u6587',
       };
 
   String get shortLabel => switch (this) {
-        AppLanguage.en => 'EN',
         AppLanguage.ru => 'RU',
-        AppLanguage.zh => 'ZH',
       };
 
   String get flag => shortLabel;
 
   Color get accent => switch (this) {
-        AppLanguage.en => const Color(0xFF7FA8FF),
         AppLanguage.ru => const Color(0xFF7ED2FF),
-        AppLanguage.zh => const Color(0xFFFF8F70),
       };
 }
 

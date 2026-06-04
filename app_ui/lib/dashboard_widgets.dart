@@ -43,7 +43,7 @@ class _Sidebar extends StatelessWidget {
         Icons.folder_shared_outlined
       ),
       (AppPage.rules, loc(language, 'Rules'), Icons.account_tree_outlined),
-      (AppPage.settings, loc(language, 'Settings'), Icons.settings_rounded),
+      (AppPage.settings, loc(language, 'Logs'), Icons.settings_rounded),
     ];
 
     return Container(
@@ -78,7 +78,7 @@ class _Sidebar extends StatelessWidget {
               const SizedBox(width: 10),
               const Expanded(
                 child: Text(
-                  'Troodi VPN',
+                  'FireProxy',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -139,18 +139,6 @@ class _Sidebar extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                _StatusRow(
-                  label: loc(language, 'Ping'),
-                  value: latencyMs > 0 ? '$latencyMs ms' : loc(language, 'n/a'),
-                  dark: true,
-                ),
-                const SizedBox(height: 8),
-                _StatusRow(
-                  label: 'IP',
-                  value: externalIp.isEmpty ? loc(language, 'n/a') : externalIp,
-                  dark: true,
-                ),
               ],
             ),
           ),
@@ -161,71 +149,17 @@ class _Sidebar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _SidebarTrafficRow(
-                  label: 'OUT',
+                  label: tr('OUT'),
                   icon: Icons.arrow_upward_rounded,
                   iconColor: const Color(0xFF6CEB86),
                   value: _formatRate(uploadBps),
                 ),
                 const SizedBox(height: 8),
                 _SidebarTrafficRow(
-                  label: 'IN',
+                  label: tr('IN'),
                   icon: Icons.arrow_downward_rounded,
                   iconColor: const Color(0xFFFF9E8B),
                   value: _formatRate(downloadBps),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            height: 1,
-            color: Colors.white.withValues(alpha: 0.08),
-          ),
-          const SizedBox(height: 18),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      hasActiveProfile
-                          ? Icons.folder_open_rounded
-                          : Icons.folder_copy_outlined,
-                      color: AppPalette.homeText.withValues(alpha: 0.84),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        hasActiveProfile
-                            ? activeProfileName
-                            : loc(language, 'No profile selected'),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppPalette.homeText,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  hasActiveProfile
-                      ? '${tr('Routing')}: ${routingMode.name} / DNS: ${dnsMode.name.toUpperCase()}'
-                      : loc(language,
-                          'Open Profiles, import or create a profile, then select it on this screen.'),
-                  style: TextStyle(
-                    height: 1.45,
-                    fontSize: 13,
-                    color: AppPalette.homeTextMuted.withValues(alpha: 0.9),
-                  ),
                 ),
               ],
             ),
@@ -314,8 +248,8 @@ class _PageHeader extends StatelessWidget {
   }
 }
 
-class _TroodiLogo extends StatelessWidget {
-  const _TroodiLogo({this.size = 52});
+class _FireProxyLogo extends StatelessWidget {
+  const _FireProxyLogo({this.size = 52});
 
   final double size;
 
@@ -2304,65 +2238,39 @@ class _RulesModeCard extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.08),
                   ),
                 ),
-                child: Text(
-                  tr('Active mode'),
-                  style: TextStyle(
-                    color: AppPalette.homeText.withValues(alpha: 0.94),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-            ),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _ModeChoiceChip(
-                  label: tr('Protect all traffic'),
-                  selected: routingMode == RoutingMode.global,
-                  onTap: () => onModeChanged(RoutingMode.global),
-                ),
-                _ModeChoiceChip(
-                  label: tr('Only selected sites'),
-                  selected: routingMode == RoutingMode.whitelist,
-                  onTap: () => onModeChanged(RoutingMode.whitelist),
-                ),
-                _ModeChoiceChip(
-                  label: tr('Exclude sites'),
-                  selected: routingMode == RoutingMode.blacklist,
-                  onTap: () => onModeChanged(RoutingMode.blacklist),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            _modeExplanation(routingMode),
-            style: TextStyle(
-              color: AppPalette.homeTextMuted.withValues(alpha: 0.82),
-              fontSize: 13,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            tr('Traffic profile'),
-            style: TextStyle(
-              color: AppPalette.homeText.withValues(alpha: 0.95),
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          //const SizedBox(height: 14),
+          //Container(
+          //  padding: const EdgeInsets.all(6),
+          //  decoration: BoxDecoration(
+          //    color: Colors.white.withValues(alpha: 0.04),
+          //    borderRadius: BorderRadius.circular(22),
+          //    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          //  ),
+          //  child: Wrap(
+          //    spacing: 8,
+          //    runSpacing: 8,
+          //    children: [
+          //      _ModeChoiceChip(
+          //        label: tr('Protect all traffic'),
+          //        selected: routingMode == RoutingMode.global,
+          //        onTap: () => onModeChanged(RoutingMode.global),
+          //      ),
+          //      _ModeChoiceChip(
+          //        label: tr('Only selected sites'),
+          //        selected: routingMode == RoutingMode.whitelist,
+          //        onTap: () => onModeChanged(RoutingMode.whitelist),
+          //      ),
+          //      _ModeChoiceChip(
+          //        label: tr('Exclude sites'),
+          //        selected: routingMode == RoutingMode.blacklist,
+          //        onTap: () => onModeChanged(RoutingMode.blacklist),
+          //      ),
+          //    ],
+          //  ),
+          //),
           const SizedBox(height: 8),
           Wrap(
             spacing: 10,
@@ -3010,108 +2918,6 @@ class _RoutingTreeLine extends StatelessWidget {
   }
 }
 
-class _RuleTesterCard extends StatelessWidget {
-  const _RuleTesterCard({
-    required this.controller,
-    required this.result,
-    required this.onChanged,
-  });
-
-  final TextEditingController controller;
-  final _RuleTestResult result;
-  final VoidCallback onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return _RulesGlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            tr('Test domain / IP'),
-            style: TextStyle(
-              color: AppPalette.homeText.withValues(alpha: 0.96),
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  onChanged: (_) => onChanged(),
-                  style: TextStyle(
-                    color: AppPalette.homeText.withValues(alpha: 0.94),
-                    fontSize: 13,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'example.com',
-                    hintStyle: TextStyle(
-                      color: AppPalette.homeTextMuted.withValues(alpha: 0.90),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.08),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              FilledButton(
-                onPressed: onChanged,
-                child: Text(tr('Test')),
-              ),
-            ],
-          ),
-          if (!result.isEmpty) ...[
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Result:',
-                    style: TextStyle(
-                      color: AppPalette.homeText.withValues(alpha: 0.94),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${result.input} -> ${result.destination}',
-                    style: TextStyle(
-                      color: result.accent,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    result.hasMatch
-                        ? '${tr('Matched rule')}: ${result.matchedRule}'
-                        : tr('No matching rules'),
-                    style: TextStyle(
-                      color: AppPalette.homeTextMuted.withValues(alpha: 0.82),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
 class _RulesQuickActionsCard extends StatelessWidget {
   const _RulesQuickActionsCard({
     required this.onReset,
@@ -3509,286 +3315,6 @@ class _RuleTestResult {
   final String defaultBehavior;
 
   bool get isEmpty => input.isEmpty;
-}
-
-String _modeExplanation(RoutingMode mode) {
-  switch (mode) {
-    case RoutingMode.global:
-      return tr(
-          'All traffic goes through VPN except sites listed in Open normally.');
-    case RoutingMode.whitelist:
-      return tr('Only sites listed in Via VPN use the VPN tunnel.');
-    case RoutingMode.blacklist:
-      return tr('All traffic goes through VPN except selected exclusions.');
-  }
-}
-
-class _TrafficBehaviorCard extends StatelessWidget {
-  const _TrafficBehaviorCard({
-    required this.routingMode,
-    required this.vpnCount,
-    required this.directCount,
-    required this.blockedCount,
-    required this.onViewDetails,
-  });
-
-  final RoutingMode routingMode;
-  final int vpnCount;
-  final int directCount;
-  final int blockedCount;
-  final VoidCallback onViewDetails;
-
-  @override
-  Widget build(BuildContext context) {
-    final stats = _behaviorStats(
-      routingMode: routingMode,
-      vpnCount: vpnCount,
-      directCount: directCount,
-      blockedCount: blockedCount,
-    );
-
-    return _RulesGlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      tr('Traffic behavior'),
-                      style: TextStyle(
-                        color: AppPalette.homeText.withValues(alpha: 0.96),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      _behaviorHeadline(routingMode),
-                      style: TextStyle(
-                        color: AppPalette.homeText.withValues(alpha: 0.92),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              FilledButton.tonalIcon(
-                onPressed: onViewDetails,
-                icon: const Icon(Icons.account_tree_outlined, size: 16),
-                label: Text(tr('View details')),
-                style: FilledButton.styleFrom(
-                  backgroundColor:
-                      AppPalette.homeAccent.withValues(alpha: 0.16),
-                  foregroundColor: AppPalette.homeText,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Divider(
-            color: Colors.white.withValues(alpha: 0.08),
-            height: 1,
-          ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: stats,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoutingDetailsDialog extends StatelessWidget {
-  const _RoutingDetailsDialog({
-    required this.routingMode,
-    required this.vpnRules,
-    required this.directRules,
-    required this.blockedRules,
-  });
-
-  final RoutingMode routingMode;
-  final List<RoutingRule> vpnRules;
-  final List<RoutingRule> directRules;
-  final List<RoutingRule> blockedRules;
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 980),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: const Color(0xFF151A30),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-            boxShadow: [AppShadows.darkCard],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tr('Traffic behavior details'),
-                          style: TextStyle(
-                            color: AppPalette.homeText.withValues(alpha: 0.96),
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          _modeExplanation(routingMode),
-                          style: TextStyle(
-                            color: AppPalette.homeTextMuted
-                                .withValues(alpha: 0.84),
-                            height: 1.45,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close_rounded),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 22),
-              _RoutingDiagram(
-                routingMode: routingMode,
-                vpnRules: vpnRules,
-                directRules: directRules,
-                blockedRules: blockedRules,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RoutingDiagram extends StatelessWidget {
-  const _RoutingDiagram({
-    required this.routingMode,
-    required this.vpnRules,
-    required this.directRules,
-    required this.blockedRules,
-  });
-
-  final RoutingMode routingMode;
-  final List<RoutingRule> vpnRules;
-  final List<RoutingRule> directRules;
-  final List<RoutingRule> blockedRules;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasBlocked = blockedRules.isNotEmpty;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        return SizedBox(
-          height: hasBlocked ? 430 : 390,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: _RoutingLinePainter(hasBlocked: hasBlocked),
-                ),
-              ),
-              Align(
-                alignment: const Alignment(0, -0.90),
-                child: _RoutingNode(
-                  title: tr('Internet'),
-                  subtitle: tr('Incoming traffic'),
-                  accent: const Color(0xFF7AD4FF),
-                  icon: Icons.public_rounded,
-                  compact: true,
-                ),
-              ),
-              Align(
-                alignment: const Alignment(0, -0.34),
-                child: _RoutingNode(
-                  title: 'Troodi VPN',
-                  subtitle: _modeLabel(routingMode),
-                  accent: AppPalette.homeAccent,
-                  icon: Icons.hub_rounded,
-                ),
-              ),
-              Positioned(
-                left: 0,
-                bottom: 8,
-                width: hasBlocked ? width * 0.31 : width * 0.42,
-                child: _RoutingBranch(
-                  title: tr('Open normally'),
-                  subtitle: routingMode == RoutingMode.whitelist
-                      ? tr('Everything else bypasses VPN')
-                      : tr('Selected exclusions bypass VPN'),
-                  accent: const Color(0xFF97A8FF),
-                  icon: Icons.open_in_browser_rounded,
-                  rules: directRules,
-                  emptyLabel: routingMode == RoutingMode.whitelist
-                      ? tr('All other traffic')
-                      : tr('No direct exclusions'),
-                ),
-              ),
-              Positioned(
-                left: hasBlocked ? width * 0.345 : width * 0.48,
-                bottom: 8,
-                width: hasBlocked ? width * 0.31 : width * 0.42,
-                child: _RoutingBranch(
-                  title: tr('VPN tunnel'),
-                  subtitle: routingMode == RoutingMode.whitelist
-                      ? tr('Only selected rules use VPN')
-                      : tr('All remaining traffic uses VPN'),
-                  accent: const Color(0xFF6BD7AE),
-                  icon: Icons.shield_rounded,
-                  rules: vpnRules,
-                  emptyLabel: routingMode == RoutingMode.whitelist
-                      ? tr('No selected sites yet')
-                      : tr('All remaining traffic'),
-                ),
-              ),
-              if (hasBlocked)
-                Positioned(
-                  right: 0,
-                  bottom: 8,
-                  width: width * 0.31,
-                  child: _RoutingBranch(
-                    title: tr('Blocked'),
-                    subtitle: tr('Traffic is dropped'),
-                    accent: const Color(0xFFFF9E8B),
-                    icon: Icons.block_rounded,
-                    rules: blockedRules,
-                    emptyLabel: tr('No blocked rules'),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
 class _RoutingNode extends StatelessWidget {
@@ -4596,12 +4122,12 @@ class _EditRuleDialogState extends State<_EditRuleDialog> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               _DialogSecondaryButton(
-                label: 'Cancel',
+                label: tr('Cancel'),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               const SizedBox(width: 10),
               _DialogPrimaryButton(
-                label: 'Save',
+                label: tr('Save'),
                 onPressed: _submit,
               ),
             ],
@@ -7157,10 +6683,6 @@ class _FlagPainter extends CustomPainter {
     switch (language) {
       case AppLanguage.ru:
         _paintRussia(canvas, size);
-      case AppLanguage.en:
-        _paintUSA(canvas, size);
-      case AppLanguage.zh:
-        _paintChina(canvas, size);
     }
   }
 
