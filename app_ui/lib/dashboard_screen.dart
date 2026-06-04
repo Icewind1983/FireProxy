@@ -54,6 +54,14 @@ class _DashboardScreenState extends State<DashboardScreen>
   String? vpnInputError;
   String? directInputError;
   String? blockedInputError;
+  
+  Future<void> _minimizeToTray() async {
+  	try {
+      await windowManager.hide();
+  	} catch (e) {
+      print('Ошибка при сворачивании: $e');
+  	}
+  }
 
   @override
   void initState() {

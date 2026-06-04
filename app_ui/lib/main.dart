@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
-//import 'dart:core';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
+import 'package:tray_manager/tray_manager.dart';
+import 'package:window_manager/window_manager.dart';
 import 'lang/translations.dart';
-//import 'package:system_tray/system_tray.dart';
 
 part 'app_theme.dart';
 part 'app_localizations.dart';
@@ -23,6 +23,12 @@ part 'dashboard_widgets.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Инициализируем window manager для десктопа
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    await windowManager.ensureInitialized();
+  }
+  
   _appendFrontendHeartbeat('main() entered');
   await _installFrontendCrashLogging();
   _appendFrontendHeartbeat('crash logging installed');
@@ -96,8 +102,148 @@ List<String> _frontendLogPaths() {
   ];
 }
 
-class FireProxyApp extends StatelessWidget {
+class FireProxyApp extends StatefulWidget {
   const FireProxyApp({super.key});
+
+  @override
+  State<FireProxyApp> createState() => _FireProxyAppState();
+}
+
+class _FireProxyAppState extends State<FireProxyApp> with TrayListener, WindowListener {
+  @override
+  void initState() {
+    super.initState();
+    
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      trayManager.addListener(this);
+      windowManager.addListener(this);
+      _initTray();
+      _initWindow();
+    }
+  }
+
+  @override
+  void dispose() {
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      trayManager.removeListener(this);
+      windowManager.removeListener(this);
+    }
+    super.dispose();
+  }
+
+  Future<void> _initWindow() async {
+    try {
+      // Настройка поведения при закрытии окна
+      await windowManager.setPreventClose(true);
+      
+      // Опциональные настройки
+      await windowManager.setMinimumSize(const Size(800, 600));
+    } catch (e) {
+      print('Ошибка инициализации окна: $e');
+    }
+  }
+
+  Future<void> _initTray() async {
+    try {
+      // Установка иконки трея
+      if (Platform.isWindows) {
+        await trayManager.setIcon('assets/logo_tray.ico');
+      } else if (Platform.isLinux) {
+        await trayManager.setIcon('assets/logo_tray.png');
+      } else if (Platform.isMacOS) {
+        await trayManager.setIcon('assets/logo_tray.png');
+      }
+
+      // Создание контекстного меню
+      final Menu menu = Menu(
+        items: [
+          MenuItem(
+            key: 'show',
+            label: 'Показать',
+          ),
+          MenuItem(
+            key: 'hide',
+            label: 'Скрыть',
+          ),
+          MenuItem(
+            key: 'separator',
+            label: '',
+          ),
+          MenuItem(
+            key: 'exit',
+            label: 'Выход',
+          ),
+        ],
+      );
+
+      await trayManager.setContextMenu(menu);
+    } catch (e) {
+      print('Ошибка инициализации трея: $e');
+    }
+  }
+
+  @override
+  void onTrayIconMouseDown() {
+    // При клике на иконку трея показываем/скрываем окно
+    _toggleWindowVisibility();
+  }
+
+  @override
+  void onTrayIconRightMouseDown() {
+    trayManager.popUpContextMenu();
+  }
+
+  @override
+  void onTrayMenuItemClick(MenuItem menuItem) {
+    switch (menuItem.key) {
+      case 'show':
+        _showWindow();
+        break;
+      case 'hide':
+        _hideWindow();
+        break;
+      case 'exit':
+        exit(0);
+      default:
+        break;
+    }
+  }
+
+  @override
+  void onWindowClose() async {
+    // Сворачиваем в трей вместо закрытия при клике на X
+    await _hideWindow();
+  }
+
+  Future<void> _showWindow() async {
+    try {
+      await windowManager.show();
+      await windowManager.focus();
+    } catch (e) {
+      print('Ошибка при показе окна: $e');
+    }
+  }
+
+  Future<void> _hideWindow() async {
+    try {
+      await windowManager.hide();
+    } catch (e) {
+      print('Ошибка при скрытии окна: $e');
+    }
+  }
+
+  void _toggleWindowVisibility() async {
+    try {
+      final isVisible = await windowManager.isVisible();
+      if (isVisible) {
+        await _hideWindow();
+      } else {
+        await _showWindow();
+      }
+    } catch (e) {
+      print('Ошибка переключения видимости: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
